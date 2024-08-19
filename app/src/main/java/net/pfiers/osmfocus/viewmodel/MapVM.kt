@@ -58,6 +58,10 @@ class MapVM(
     val savedZoomLevel = settingsDataStore.data.map { settings ->
         settings.lastZoomLevel
     }.asLiveData()
+    val showNotes = settingsDataStore.data.map { settings ->
+        settings.showNotes
+    }.asLiveData()
+
     var mapState: MapState? by Delegates.observable(null) { _, _, _ ->
         updateHighlightedElements()
         initiateDownload()

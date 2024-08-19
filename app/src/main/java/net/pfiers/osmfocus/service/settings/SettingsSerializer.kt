@@ -22,6 +22,7 @@ class SettingsSerializer : Serializer<Settings> {
         showNodes = Defaults.showNodes
         showWays = Defaults.showWays
         zoomBeyondBaseMapMax = Defaults.zoomBeyondBaseMapMax
+        showNotes = Defaults.showNotes
     }.build()
 
     override suspend fun readFrom(input: InputStream): Settings {

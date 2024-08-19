@@ -407,6 +407,62 @@
                 android:layout_height="72dp"
                 android:clickable="true"
                 android:focusable="true"
+                android:onClick="@{() -> vm.toggleShowNotes()}">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/hideNotesIcon"
+                    style="@style/SettingsListItemIcon"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@mipmap/ic_bm_open_note" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/hideNotesIcon"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/hideNotesSwitch">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/setting_hide_notes"
+                        android:textAppearance="?attr/textAppearanceListItem" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="@string/setting_zoom_beyond_base_map_max_enabled"
+                        android:text="@{vm.notesShown ? @string/setting_zoom_beyond_base_map_max_enabled : @string/setting_zoom_beyond_base_map_max_disabled}"
+                        android:textAppearance="?attr/textAppearanceListItemSecondary" />
+
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/hideNotesSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:checked="@{vm.notesShown}"
+                    android:clickable="false"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="16dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:clickable="true"
+                android:focusable="true"
                 android:onClick="@{() -> vm.showAbout()}">
 
                 <com.google.android.material.imageview.ShapeableImageView

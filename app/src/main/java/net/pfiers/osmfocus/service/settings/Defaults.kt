@@ -12,4 +12,5 @@ object Defaults {
     const val showWays = true
     const val showNodes = true
     const val zoomBeyondBaseMapMax = false
+    const val showNotes = true
 }

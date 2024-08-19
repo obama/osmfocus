@@ -301,6 +301,7 @@ class MapFragment : BindingFragment<FragmentMapBinding>(
         mapVM.showRelations.observe(viewLifecycleOwner) { }
         mapVM.showNodes.observe(viewLifecycleOwner) { }
         mapVM.showWays.observe(viewLifecycleOwner) { }
+        mapVM.showNotes.observe(viewLifecycleOwner) { }
 
         mapVM.downloadState.observe(viewLifecycleOwner) { state ->
             val icon = when (state) {
@@ -514,24 +515,26 @@ class MapFragment : BindingFragment<FragmentMapBinding>(
 
     private val displayedNotesMutex = Mutex()
     private suspend fun addNotesMarkers(notes: Notes) {
-        map?.let { map ->
-            for ((id, note) in notes) {
-                if (!displayedNotesMutex.withLock { displayedNotes.add(id) }) continue
-                map.overlayManager.add(
-                    Marker(map).apply {
-                        position = note.coordinate.toOsmDroid()
-                        icon = if (note.isOpen) noteDrawables.open else noteDrawables.closed
-                        setAnchor(Marker.ANCHOR_CENTER, NOTE_ICON_ANCHOR_Y.toFloat())
-                        infoWindow = null
-                        setOnMarkerClickListener { _, _ ->
-                            handleNavEvent(
-                                ShowNoteDetailsEvent(NoteAndId(note, id)),
-                                findNavController()
-                            )
-                            true
+        if (mapVM.showNotes.value == true) {
+            map?.let { map ->
+                for ((id, note) in notes) {
+                    if (!displayedNotesMutex.withLock { displayedNotes.add(id) }) continue
+                    map.overlayManager.add(
+                        Marker(map).apply {
+                            position = note.coordinate.toOsmDroid()
+                            icon = if (note.isOpen) noteDrawables.open else noteDrawables.closed
+                            setAnchor(Marker.ANCHOR_CENTER, NOTE_ICON_ANCHOR_Y.toFloat())
+                            infoWindow = null
+                            setOnMarkerClickListener { _, _ ->
+                                handleNavEvent(
+                                    ShowNoteDetailsEvent(NoteAndId(note, id)),
+                                    findNavController()
+                                )
+                                true
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }

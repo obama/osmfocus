@@ -29,6 +29,7 @@ class SettingsVM(
     val waysShown = settingsLd { settings -> settings.showWays }
     val mapRotationGestureEnabled = settingsLd { settings -> settings.mapRotationGestureEnabled }
     val zoomBeyondBaseMapMax = settingsLd { settings -> settings.zoomBeyondBaseMapMax }
+    val notesShown = settingsLd { settings -> settings.showNotes }
 
     fun editBaseMaps() = events.trySend(EditBaseMapsEvent()).discard()
     fun editTagboxLongLines() = events.trySend(EditTagboxLongLinesEvent()).discard()
@@ -65,7 +66,14 @@ class SettingsVM(
             }.build()
         }
     }.discard()
-
+    
+    fun toggleShowNotes() = viewModelScope.launch {
+        settingsDataStore.updateData { currentSettings ->
+            currentSettings.toBuilder().apply {
+                showNotes = !currentSettings.showNotes
+            }.build()
+        }
+    }.discard()
 
     fun toggleZoomBeyondBaseMapMax() = viewModelScope.launch {
         settingsDataStore.updateData { currentSettings ->
