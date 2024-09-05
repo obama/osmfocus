@@ -18,6 +18,7 @@ import kotlinx.coroutines.*
 import net.openid.appauth.*
 import net.pfiers.osmfocus.R
 import net.pfiers.osmfocus.service.*
+import net.pfiers.osmfocus.service.oauth.OsmAuthRepository
 import net.pfiers.osmfocus.service.oauth.OsmAuthRepository.Companion.osmAuthRepository
 import net.pfiers.osmfocus.service.util.createEmailIntent
 import net.pfiers.osmfocus.service.util.div
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity(), EventReceiver {
     private lateinit var osmAuthorizationResultLauncher: ActivityResultLauncher<Intent>
     private val oAuthScope = CoroutineScope(Job() + Dispatchers.IO)
     private var osmAuthorizationJob: CompletableJob? = null
+    private var osmAuthRepo: OsmAuthRepository? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +48,7 @@ class MainActivity : AppCompatActivity(), EventReceiver {
         setContentView(R.layout.activity_main)
 
         val osmAuthRepository = this.osmAuthRepository
+        osmAuthRepo = osmAuthRepository
 
         osmAuthorizationResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -84,7 +87,7 @@ class MainActivity : AppCompatActivity(), EventReceiver {
                         return@performTokenRequest
                     }
                     authState.update(refreshResp, null)
-                    Timber.d("Authorization complete")
+                    osmAuthRepository.setAuthState(authState)
                     osmAuthorizationJob?.complete()
                 }
             }
@@ -118,19 +121,26 @@ class MainActivity : AppCompatActivity(), EventReceiver {
                 val authState = osmAuthRepository.getAuthState()
                 if (!authState.isAuthorized) {
                     if (!osmAuthorize(event.reason)) return@launch
+                val authState = osmAuthRepo?.getAuthState()
+                if (authState != null) {
+                    if (!authState.isAuthorized) {
+                        if (!osmAuthorize(event.reason)) return@launch
+                    }
                 }
 
-                authState.performActionWithFreshTokens(authService) { accessToken, _, ex ->
-                    if (ex != null || accessToken == null) {
-                        val description = ex?.errorDescription ?: "unknown error"
-                        Snackbar.make(
-                            window.decorView.rootView,
-                            "Failed to refresh OSM access token: $description",
-                            Snackbar.LENGTH_LONG
-                        ).show()
-                        return@performActionWithFreshTokens
+                if (authState != null) {
+                    authState.performActionWithFreshTokens(authService) { accessToken, _, ex ->
+                        if (ex != null || accessToken == null) {
+                            val description = ex?.errorDescription ?: "unknown error"
+                            Snackbar.make(
+                                window.decorView.rootView,
+                                "Failed to refresh OSM access token: $description",
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                            return@performActionWithFreshTokens
+                        }
+                        event.action(accessToken)
                     }
-                    event.action(accessToken)
                 }
             }
             else -> Timber.w("Unhandled event: $event")

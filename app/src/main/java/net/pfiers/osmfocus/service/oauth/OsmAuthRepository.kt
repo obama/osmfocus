@@ -24,13 +24,17 @@ class OsmAuthRepository(
     // about contention with regards to the data store. We *should* be the sole accessors of
     // .osmAuthState, as such: don't listen for changes (we can't anyway).
     suspend fun getAuthState() = if (::_authState.isInitialized) {
-        Timber.d("")
+        Timber.d("OSMAUTH: _authState is initialized")
         _authState
     } else {
         settingsDataStore.data.first().osmAuthState.ifBlank { null }
             ?.let { AuthState.jsonDeserialize(it) }
             ?: AuthState(serviceConfig)
                 .also { authState -> _authState = authState }
+    }
+
+    fun setAuthState(newAuthState : AuthState) {
+        _authState = newAuthState
     }
 
     fun createAuthorizationRequest() = AuthorizationRequest.Builder(
