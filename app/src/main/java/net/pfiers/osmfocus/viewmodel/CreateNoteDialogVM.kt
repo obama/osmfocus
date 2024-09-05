@@ -38,6 +38,7 @@ class CreateNoteDialogVM(
         }, { ex ->
             Timber.d("Create note failed :( %s", ex::class.simpleName)
         })
+        events.trySend(CancelEvent()).discard()
     }
 
     fun create() = events.trySend(
